@@ -14,8 +14,10 @@ jobs:
 
       - name: Extract branch name
         id: extract-branch
-        run: echo "BRANCH_NAME=$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
-
+        run: |
+          BRANCH_NAME="$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
+          echo $BRANCH_NAME
+          
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
