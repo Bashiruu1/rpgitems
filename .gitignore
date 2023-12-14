@@ -1,0 +1,25 @@
+[Oo]bj
+[Bb]in
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/projectSettingsUpdater.xml
+/contentModel.xml
+/.idea.AwsFundamentalsCourse.iml
+/modules.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+/.idea
+
+.DS_Store
+
+# terraform
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
