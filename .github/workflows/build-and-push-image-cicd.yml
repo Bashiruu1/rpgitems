@@ -35,5 +35,5 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD-${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD${{ github.run_number }}
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:latest
