@@ -1,0 +1,70 @@
+name: Build and Push Image
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  normal_ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Extract branch name
+        id: extract-branch
+        run: echo "BRANCH_NAME=$(echo $GITHUB_REF | sed 's/refs\/heads\///')"
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.0.1
+
+      - name: Build .NET Core app
+        run: dotnet build --configuration Release
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and tag Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:$BRANCH_NAME-${{ github.run_number }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:$BRANCH_NAME-${{ github.run_number }}
+
+  pull_request_ci:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.0.1
+
+      - name: Build .NET Core app
+        run: dotnet build --configuration Release
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and tag Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD${{ github.run_number }} .
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD${{ github.run_number }} ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD-${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:latest
