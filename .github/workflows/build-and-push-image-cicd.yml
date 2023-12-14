@@ -1,20 +1,18 @@
-name: Build and Push Image
+name: Build and Push Image CICD
 
 on:
-  push:
-    branches:
-      - "*"
+  pull_request:
+    types:
+      - closed
 
 jobs:
-  normal_ci:
+  on-merge:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Extract branch name
-        id: extract-branch
-        run: echo "BRANCH_NAME=$(echo $GITHUB_REF | sed 's/refs\/heads\///')" >> $GITHUB_ENV
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
@@ -32,8 +30,10 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:${{ env.BRANCH_NAME }}-${{ github.run_number }} .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD${{ github.run_number }} .
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD${{ github.run_number }} ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:latest
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:${{ env.BRANCH_NAME }}-${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:CICD-${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/rpgitems:latest
